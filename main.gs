@@ -38,9 +38,12 @@ function sendMail(index){
 
 function main() {
   for(var i=0; i<range; i++){
-    let newDate = new Date(Number(getInfo("D"+i)))
+    let newDate = new Date(Number(getInfo('D'+i)))
     let date = new Date()
     if(Number(newDate.getDate()-date.getDate()) == 2){
+      htmlBody.name = getInfo('C'+i)
+      htmlBody.date = getInfo('D'+i)
+      htmlBody.period = getInfo('E'+i)
       sendMail(i)
     }
   }
