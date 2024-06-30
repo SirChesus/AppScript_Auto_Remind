@@ -17,21 +17,13 @@ function formatTime(index){
   //code
 }
 
-// takes the time from now to future date and converts into days, then checks if < limit and > 0 (idk if needed)
-function checkWithinRange(date = new Date, limit){
-  return (date - new Date())/8.64e+7 <= limit && date - new Date() > 0
-}
-
-// no clue why this is needed, just keep it
-var email_html = htmlBody.evaluate().getContent();
-
 // function which sends email when called
-function sendMail(index){
+function sendMail(index, body){
   MailApp.sendEmail({
       
       to: String(getInfo('A',index)),
       subject: "Peer Counseling Appointment Reminder",
-      htmlBody: email_html
+      htmlBody: body
       }); 
 
 }
@@ -41,10 +33,11 @@ function main() {
     let newDate = new Date(Number(getInfo('D'+i)))
     let date = new Date()
     if(Number(newDate.getDate()-date.getDate()) == 2){
-      htmlBody.name = getInfo('C'+i)
-      htmlBody.date = getInfo('D'+i)
-      htmlBody.period = getInfo('E'+i)
-      sendMail(i)
+      htmlBody.name = getInfo('C'+ i)
+      htmlBody.date = getInfo('D'+ i)
+      htmlBody.period = getInfo('E'+ i) 
+      var email_html = htmlBody.evaluate().getContent();
+      sendMail(i, email_html)
     }
   }
 }
