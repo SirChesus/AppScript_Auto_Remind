@@ -13,9 +13,6 @@ function getInfo(col, index){
   return sheet.getRange(col+index).getValue()
 }
 
-function formatTime(index){
-  //code
-}
 
 // function which sends email when called
 function sendMail(index, body){
@@ -23,19 +20,22 @@ function sendMail(index, body){
       
       to: String(getInfo('A',index)),
       subject: "Peer Counseling Appointment Reminder",
-      htmlBody: body
+      htmlBody: body,
+      from: "agoura.peercounseling@gmail.com"
       }); 
 
 }
 
+// main function indexes thru whole list, compares dates to decide if it should send an email
 function main() {
   for(var i=0; i<range; i++){
     let newDate = new Date(Number(getInfo('D'+i)))
     let date = new Date()
+
     if(Number(newDate.getDate()-date.getDate()) == 2){
-      htmlBody.name = getInfo('C'+ i)
-      htmlBody.date = getInfo('D'+ i)
-      htmlBody.period = getInfo('E'+ i) 
+      htmlBody.name = String(getInfo('C'+ i))
+      htmlBody.date = String(getInfo('D'+ i))
+      htmlBody.period = String(getInfo('E'+ i))
       var email_html = htmlBody.evaluate().getContent();
       sendMail(i, email_html)
     }
