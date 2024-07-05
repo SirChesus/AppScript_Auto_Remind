@@ -1,43 +1,57 @@
-// get the active spreadsheet
+// Get the active spreadsheet
 const sheet = SpreadsheetApp.getActiveSheet();
 
-// call the template from mail_template file
-const htmlBody = HtmlService.createTemplateFromFile('mail_template');
+// Call the template from mail_template file
+const htmlBody = HtmlService.createTemplateFromFile('mail_template')
 
-// rows to get length later
+// Get the last row with data EDIT
 const lastRow = sheet.getLastRow();
-const range = sheet.getRange(2, 1, lastRow - 1, 3); // Row index set to 2 to skip header row
+const range = sheet.getRange(2, 1, lastRow - 1, 5); // Adjusted to fetch 5 columns
 
-// gets whatever is in 'col' column at 'index' index
-function getInfo(col, index){
-  return sheet.getRange(col+index).getValue()
+// Function to get data from specific cells
+function getInfo(col, index) {
+  return sheet.getRange(col + index).getValue();
 }
 
+// converts from milliseconds to days, then checks if (in days) <= limit
+function isWithinRange(date = new Date, limit){
+  return (date - new Date())/8.64e+7 <= limit && date - new Date() > 0
+}
 
-// function which sends email when called
-function sendMail(index, body){
+// Function which sends email when called
+function sendMail(email, body) {
+  var recipientEmail = String(email)
+
+  if (!recipientEmail || recipientEmail === "") {
+        console.error("Invalid email address or empty cell at row " + rowIndex);
+        return;
+      } 
   MailApp.sendEmail({
-      
-      to: String(getInfo('A',index)),
-      subject: "Peer Counseling Appointment Reminder",
-      htmlBody: body,
-      from: "agoura.peercounseling@gmail.com"
-      }); 
-
+    // Error in the recipientEmail, body is not being sent properly aswell
+    to: 'mayankatte4707@student.lvusd.org',
+    subject: "Peer Counseling Appointment Reminder",
+    htmlBody: body
+  });
 }
 
-// main function indexes thru whole list, compares dates to decide if it should send an email
+// Main function indexes through whole list, compares dates to decide if it should send an email
 function main() {
-  for(var i=0; i<range; i++){
-    let newDate = new Date(Number(getInfo('D'+i)))
-    let date = new Date()
+  for (var i = 0; i < range.getNumRows(); i++) {
+    let rowIndex = i + 2; // Skip headers
 
-    if(Number(newDate.getDate()-date.getDate()) == 2){
-      htmlBody.name = String(getInfo('C'+ i))
-      htmlBody.date = String(getInfo('D'+ i))
-      htmlBody.period = String(getInfo('E'+ i))
+    let apptDate = new Date(getInfo("A", rowIndex)); // Assuming 'D' is column 4 (index 3)
+
+    // Compare dates considering year, month, and day
+    if (isWithinRange(getInfo(apptDate, 2))) {
+
+      htmlBody.name = getInfo("C", rowIndex); 
+      htmlBody.date = getInfo("D", rowIndex); 
+      htmlBody.period = getInfo("E", rowIndex); 
+
+      var recipientEmail = getInfo('B', rowIndex); 
       var email_html = htmlBody.evaluate().getContent();
-      sendMail(i, email_html)
+      sendMail(recipientEmail, email_html);
+       
+      }
     }
   }
-}
