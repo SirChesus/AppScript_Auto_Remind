@@ -2,6 +2,7 @@
 const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
 // Call the template from mail_template file
+const htmlTemplate = HtmlService.createTemplateFromFile('mail_template')
 
 // Get the last row with data
 const lastRow = sheet.getLastRow();
@@ -41,15 +42,15 @@ function main() {
     let apptDate = new Date(getInfo(rowIndex, 4)); 
     console.log("appt. date: ", apptDate)
 
-    if (!isWithinRange(apptDate, 7) || apptDate == '') { // Assuming limit is 7 days
+    if (!isWithinRange(apptDate, 3) || apptDate == '') { // Assuming limit is 7 days
       continue;
     }
-    const htmlBody = HtmlService.createTemplateFromFile('mail_template.html');
-    htmlBody.name = getInfo(rowIndex,3); // Assuming column C is the name
-    htmlBody.date = apptDate; // Assuming column D is the date
-    htmlBody.period = getInfo(rowIndex, 5); // Assuming column E is the period
+    htmlTemplate.name = getInfo(rowIndex,3); 
+    htmlTemplate.date = apptDate.toDateString(); 
+    htmlTemplate.period = getInfo(rowIndex, 5); 
 
-    const recipientEmail = getInfo(rowIndex, 2); // Assuming column B is the email
+    const htmlBody = htmlTemplate.evaluate().getContent() 
+    const recipientEmail = getInfo(rowIndex, 2); 
     sendMail(recipientEmail, htmlBody);
   }
 }
